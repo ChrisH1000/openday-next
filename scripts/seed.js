@@ -1,5 +1,6 @@
 const { db } = require("@vercel/postgres");
-const { opendays, events, sessions } = require("../src/app/lib/placeholder-data.js");
+const { opendays, events, sessions, users } = require("../src/app/lib/placeholder-data.js");
+const bcrypt = require("bcrypt");
 
 async function seedOpendays(client) {
   try {
@@ -115,11 +116,49 @@ async function seedSessions(client) {
   }
 }
 
+async function seedUsers(client) {
+  try {
+    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+    const createTable = await client.sql`
+      CREATE TABLE IF NOT EXISTS users (
+        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL
+      );
+    `;
+
+    console.log(`Created "user" table`);
+
+    // Insert data into the "users" table
+    const insertedUsers = await Promise.all(
+      users.map(async (user) => {
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+        return client.sql`
+        INSERT INTO users (id, name, email, password)
+        VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
+        ON CONFLICT (id) DO NOTHING;
+      `;
+      })
+    );
+    console.log(`Seeded ${insertedUsers.length} users`);
+
+    return {
+      createTable,
+      user: insertedUsers,
+    };
+  } catch (error) {
+    console.error("Error seeding users:", error);
+    throw error;
+  }
+}
+
 async function main() {
   const client = await db.connect();
   await seedOpendays(client);
   await seedEvents(client);
   await seedSessions(client);
+  await seedUsers(client);
   await client.end();
 }
 
