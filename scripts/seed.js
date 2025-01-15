@@ -1,5 +1,5 @@
 const { db } = require("@vercel/postgres");
-const { opendays, events, sessions, users } = require("../src/app/lib/placeholder-data.js");
+const { opendays, events, sessions, users } = require("../app/lib/placeholder-data.js");
 const bcrypt = require("bcrypt");
 
 async function seedOpendays(client) {
