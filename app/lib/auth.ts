@@ -1,4 +1,4 @@
-import { connectToDB } from "@/app/lib/data";
+import { connectToDB } from '@/lib/data';
 // import bcrypt from 'bcrypt';
 
 interface User {
