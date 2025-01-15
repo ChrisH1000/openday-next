@@ -13,6 +13,7 @@ export async function getUser(email: string, password: string): Promise<User | n
   if (!client) {
     throw new Error("Failed to connect to the database");
   }
+  console.log(password)
   const query = 'SELECT * FROM users WHERE email = $1';
   // const hashedPassword = await bcrypt.hash(password, 10);
   const values = [email];
