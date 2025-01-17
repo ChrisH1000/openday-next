@@ -82,6 +82,7 @@ const users = [
     name: 'User',
     email: 'user@openday.com',
     password: '123456',
+    admin: true
   },
 ];
 
