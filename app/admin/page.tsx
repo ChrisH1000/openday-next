@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/auth";
+import { getUser } from "@/app/lib/auth";
 
 export default async function Page() {
   const user = await getUser('user@openday.com', '123456');
