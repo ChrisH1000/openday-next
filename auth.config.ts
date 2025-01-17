@@ -6,7 +6,10 @@ export const authConfig = {
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
+      console.log('authorized');
       const isLoggedIn = !!auth?.user;
+
+      console.log(auth.user)
 
       // const isOnAdmin = nextUrl.pathname.startsWith('/admin');
       // if (isOnAdmin) {
@@ -26,5 +29,5 @@ export const authConfig = {
       return true;
     },
   },
-  providers: [], // Add providers with an empty array for now
+  providers: [],
 } satisfies NextAuthConfig;
