@@ -79,11 +79,18 @@ const sessions = [
 const users = [
   {
     id: '410544b2-4001-4271-9855-fec4b6a6442a',
-    name: 'User',
-    email: 'user@openday.com',
+    name: 'Admin',
+    email: 'admin@openday.com',
     password: '123456',
     admin: true
   },
+  {
+    id: 'c1358ad2-6476-4511-b50a-5be8e47f441e',
+    name: 'Chris',
+    email: 'chris@openday.com',
+    password: '123456',
+    admin: false
+  }
 ];
 
 module.exports = {

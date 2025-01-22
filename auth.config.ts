@@ -23,16 +23,33 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       console.log('authorized');
       const isLoggedIn = !!auth?.user;
+      const isAdmin = auth?.user?.admin;
       console.log(auth);
 
+      const isOnLogin = nextUrl.pathname === '/login';
       const isOnPlanner = nextUrl.pathname.startsWith('/planner');
       const isOnAdmin = nextUrl.pathname.startsWith('/admin');
-      if (isOnPlanner || isOnAdmin) {
-        if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
-      } else if (isLoggedIn) {
-        return Response.redirect(new URL('/admin', nextUrl));
+
+      if (isOnLogin) {
+        return true; // Allow access to the login route
       }
+
+      if (!isLoggedIn) {
+        return Response.redirect(new URL('/login', nextUrl));
+      }
+
+      if (isOnAdmin) {
+        if (isAdmin) {
+          return true;
+        } else {
+          return Response.redirect(new URL('/planner', nextUrl));
+        }
+      }
+
+      if (isOnPlanner) {
+        return true;
+      }
+
       return true;
     },
   },
