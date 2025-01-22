@@ -1,13 +1,27 @@
 import type { NextAuthConfig } from 'next-auth';
+import { sql } from '@vercel/postgres';
 
 export const authConfig = {
   pages: {
     signIn: '/login',
   },
   callbacks: {
+    jwt({ token, user }) {
+      if (user) { // User is available during sign-in
+        token.id = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      const user = await sql<User>`SELECT * FROM users WHERE email=${session.user.email}`;
+      session.user.id = token.id
+      session.user.admin = user.rows[0].admin;
+      return session
+    },
     authorized({ auth, request: { nextUrl } }) {
       console.log('authorized');
       const isLoggedIn = !!auth?.user;
+      console.log(auth);
 
       const isOnPlanner = nextUrl.pathname.startsWith('/planner');
       const isOnAdmin = nextUrl.pathname.startsWith('/admin');
@@ -15,7 +29,7 @@ export const authConfig = {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
-        return Response.redirect(new URL('/planner', nextUrl));
+        return Response.redirect(new URL('/admin', nextUrl));
       }
       return true;
     },
