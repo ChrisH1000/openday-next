@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from 'next-auth';
 import { sql } from '@vercel/postgres';
+import type { User } from '@/app/lib/definitions';
 
 export const authConfig = {
   pages: {
@@ -14,7 +15,8 @@ export const authConfig = {
     },
     async session({ session, token }) {
       const user = await sql<User>`SELECT * FROM users WHERE email=${session.user.email}`;
-      session.user.id = token.id
+      session.user.id = token.id as string
+      // @ts-expect-error: admin property might not exist on user
       session.user.admin = user.rows[0].admin;
       return session
     },
