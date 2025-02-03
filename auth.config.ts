@@ -27,6 +27,7 @@ export const authConfig = {
       console.log(auth);
 
       const isOnLogin = nextUrl.pathname === '/login';
+      const isOnSignUp = nextUrl.pathname === '/signup';
       const isOnPlanner = nextUrl.pathname.startsWith('/planner');
       const isOnAdmin = nextUrl.pathname.startsWith('/admin');
 
@@ -39,6 +40,17 @@ export const authConfig = {
           }
         }
         return true; // Allow access to the login route
+      }
+
+      if (isOnSignUp) {
+        if (isLoggedIn) {
+          if (isAdmin) {
+            return Response.redirect(new URL('/admin', nextUrl));
+          } else {
+            return Response.redirect(new URL('/planner', nextUrl));
+          }
+        }
+        return true;
       }
 
       if (!isLoggedIn) {
