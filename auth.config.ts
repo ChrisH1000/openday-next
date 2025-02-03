@@ -31,6 +31,13 @@ export const authConfig = {
       const isOnAdmin = nextUrl.pathname.startsWith('/admin');
 
       if (isOnLogin) {
+        if (isLoggedIn) {
+          if (isAdmin) {
+            return Response.redirect(new URL('/admin', nextUrl));
+          } else {
+            return Response.redirect(new URL('/planner', nextUrl));
+          }
+        }
         return true; // Allow access to the login route
       }
 
