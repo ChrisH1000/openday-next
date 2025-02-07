@@ -9,3 +9,12 @@ export type User = {
   password: string;
   admin: boolean;
 };
+
+export type Openday = {
+  id: string;
+  title: string;
+  campus: string;
+  starttime: number;
+  endtime: number;
+  status: string;
+};

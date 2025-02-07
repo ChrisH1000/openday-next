@@ -1,15 +1,20 @@
-import { createClient } from '@vercel/postgres';
+import { sql } from '@vercel/postgres';
 
-export async function connectToDB() {
-  const client = createClient();
-  await client.connect();
+import {
+  Openday,
+} from './definitions';
 
+export async function fetchOpendays() {
   try {
-    if (client) {
-      console.log('Connected to database');
-      return client;
-    }
+    // Artificially delay a response for demo purposes.
+    // Don't do this in production :)
+
+    console.log('Fetching Openday data...');
+    const data = await sql<Openday>`SELECT * FROM openday`;
+
+    return data.rows;
   } catch (error) {
-    console.error('Error connecting to database:', error);
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch Openday data.');
   }
 }
