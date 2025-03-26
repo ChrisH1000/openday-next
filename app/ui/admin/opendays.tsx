@@ -1,5 +1,6 @@
 import { ArrowPathIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { fetchOpendays } from '../../lib/data';
+import Link from 'next/link';
 import { cabin } from '@/app/ui/fonts';
 import clsx from 'clsx';
 // import { LatestInvoice } from '@/app/lib/definitions';
@@ -27,7 +28,12 @@ export default async function Opendays() { // Make component async, remove the p
               <div className="flex">
                 <div className="min-w-0">
                   <p className="truncate text-sm md:text-base">
+                  <Link
+                    key={openday.title}
+                    href={`/admin/opendays/${openday.id}`}
+                  >
                     {openday.title}
+                  </Link>
                   </p>
                   <p className="hidden text-sm text-gray-500 sm:block">
                     {openday.campus}
