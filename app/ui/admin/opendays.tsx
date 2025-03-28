@@ -25,7 +25,7 @@ export default async function Opendays() { // Make component async, remove the p
                 },
               )}
             >
-              <div className="flex *:">
+              <div className="flex">
                 <div className="min-w-0">
                   <p className="truncate text-sm md:text-base">
                   <Link
