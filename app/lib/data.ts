@@ -18,3 +18,8 @@ export async function fetchOpendays() {
     throw new Error('Failed to fetch Openday data.');
   }
 }
+
+export async function fetchOpendayById(id: string) {
+  const opendays = await fetchOpendays();
+  return opendays.find((o) => o.id === id);
+}

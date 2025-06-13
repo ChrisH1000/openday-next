@@ -54,7 +54,9 @@ export default async function Opendays() { // Make component async, remove the p
               </div>
               {/* Edit button */}
               <div className="md:col-span-2 flex md:justify-center items-center mt-2 md:mt-0">
-                <PencilSquareIcon className="h-5 w-5 text-gray-500" />
+                <Link href={`/admin/opendays/${openday.id}/edit`}>
+                  <PencilSquareIcon className="h-5 w-5 text-gray-500" />
+                </Link>
               </div>
             </div>
           );
