@@ -8,6 +8,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     const updated = await updateOpenday({ ...data, id: params.id });
     return NextResponse.json({ success: true, openday: updated });
   } catch (e) {
-    return NextResponse.json({ success: false, error: e.message }, { status: 400 });
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
   }
 }
