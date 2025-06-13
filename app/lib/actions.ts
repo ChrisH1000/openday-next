@@ -82,3 +82,18 @@ export async function createUser(
     throw error;
   }
 }
+
+export async function updateOpenday({ id, title, campus, starttime, endtime, status }: { id: string, title: string, campus: string, starttime: number, endtime: number, status: string }) {
+  try {
+    const result = await sql`
+      UPDATE opendays
+      SET title = ${title}, campus = ${campus}, starttime = ${starttime}, endtime = ${endtime}, status = ${status}
+      WHERE id = ${id}
+      RETURNING *;
+    `;
+    return result.rows[0];
+  } catch (error) {
+    console.error('Failed to update openday:', error);
+    throw new Error('Failed to update openday.');
+  }
+}
