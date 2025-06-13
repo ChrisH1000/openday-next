@@ -58,7 +58,7 @@ export default function OpendayList({ opendays, title, bgColor }: { opendays: Op
           <div className="md:col-span-2 flex md:justify-center items-center mt-2 md:mt-0">
             <EditButton href={`/admin/opendays/${openday.id}/edit`} />
             <DeleteButton id={openday.id} onDelete={async () => {
-              await fetch(`/api/opendays/${openday.id}/edit`, { method: 'DELETE' });
+              await fetch(`/api/opendays/${openday.id}`, { method: 'DELETE' });
               window.location.reload();
             }} />
           </div>

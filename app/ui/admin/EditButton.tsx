@@ -33,12 +33,16 @@ export default function EditButton({ href }: { href: string }) {
   );
 }
 
-export function DeleteButton({ id, onDelete }: { id: string; onDelete: () => void }) {
+export function DeleteButton({ id, onDelete }: { id: string; onDelete: () => Promise<void> }) {
   const [loading, setLoading] = useState(false);
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this OpenDay?')) {
       setLoading(true);
-      await onDelete();
+      try {
+        await onDelete();
+      } catch {
+        alert('Failed to delete OpenDay.');
+      }
       setLoading(false);
     }
   };

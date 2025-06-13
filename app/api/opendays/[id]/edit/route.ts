@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
-    await sql`DELETE FROM opendays WHERE id = ${params.id}`;
+    await sql`DELETE FROM openday WHERE id = ${params.id}`;
     return new Response(null, { status: 204 });
   } catch (e) {
     return new Response(JSON.stringify({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }), { status: 400 });
