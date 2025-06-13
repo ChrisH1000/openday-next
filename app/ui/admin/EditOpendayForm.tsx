@@ -5,7 +5,16 @@ import { useState } from 'react';
 import { updateOpenday } from '@/app/lib/actions';
 import { useRouter } from 'next/navigation';
 
-export default function EditOpendayForm({ openday }: { openday: any }) {
+interface Openday {
+  id: string;
+  title: string;
+  campus: string;
+  starttime: number;
+  endtime: number;
+  status: string;
+}
+
+export default function EditOpendayForm({ openday }: { openday: Openday }) {
   const router = useRouter();
   const [loading, setLoading] = useState<'save' | 'cancel' | null>(null);
   const [title, setTitle] = useState(openday.title);
