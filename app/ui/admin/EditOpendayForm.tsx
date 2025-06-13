@@ -3,8 +3,10 @@
 // EditOpendayForm component
 import { useState } from 'react';
 import { updateOpenday } from '@/app/lib/actions';
+import { useRouter } from 'next/navigation';
 
 export default function EditOpendayForm({ openday }: { openday: any }) {
+  const router = useRouter();
   const [title, setTitle] = useState(openday.title);
   const [campus, setCampus] = useState(openday.campus);
   const [starttime, setStarttime] = useState(openday.starttime);
@@ -43,7 +45,10 @@ export default function EditOpendayForm({ openday }: { openday: any }) {
           <option value="archived">Archived</option>
         </select>
       </div>
-      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+      <div className="flex gap-2">
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+        <button type="button" className="bg-gray-300 text-gray-800 px-4 py-2 rounded" onClick={() => router.push('/admin')}>Cancel</button>
+      </div>
     </form>
   );
 }
