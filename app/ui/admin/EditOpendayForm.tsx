@@ -18,7 +18,7 @@ export default function EditOpendayForm({ openday }: { openday: any }) {
     e.preventDefault();
     setLoading('save');
     await updateOpenday({ id: openday.id, title, campus, starttime, endtime, status });
-    // Optionally redirect or show success
+    router.push('/admin');
     setLoading(null);
   };
   const handleCancel = () => {
