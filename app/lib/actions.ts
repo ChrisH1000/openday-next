@@ -97,3 +97,19 @@ export async function updateOpenday({ id, title, campus, starttime, endtime, sta
     throw new Error('Failed to update openday.');
   }
 }
+
+export async function createOpenday({ title, campus, starttime, endtime }: { title: string, campus: string, starttime: number, endtime: number }) {
+  try {
+    const id = crypto.randomUUID();
+    const status = 'under construction';
+    const result = await sql`
+      INSERT INTO openday (id, title, campus, starttime, endtime, status)
+      VALUES (${id}, ${title}, ${campus}, ${starttime}, ${endtime}, ${status})
+      RETURNING *;
+    `;
+    return result.rows[0];
+  } catch (error) {
+    console.error('Failed to create openday:', error, { title, campus, starttime, endtime });
+    throw new Error('Failed to create openday.');
+  }
+}

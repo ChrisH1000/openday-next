@@ -1,5 +1,6 @@
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { fetchOpendays } from '../../lib/data';
+import { createOpenday } from '../../lib/actions';
 import OpendayList from './OpendayList';
 
 export default async function Opendays() {
@@ -7,9 +8,28 @@ export default async function Opendays() {
   const liveOpendays = opendays.filter((openday) => openday.status === 'live');
   const underConstructionOpendays = opendays.filter((openday) => openday.status === 'under construction');
   const archivedOpendays = opendays.filter((openday) => openday.status === 'archived');
-  console.log(opendays);
+
+  async function handleCreateOpenday(formData: FormData) {
+    'use server';
+    const title = formData.get('title') as string;
+    const campus = formData.get('campus') as string;
+    // Convert date strings to Unix timestamps (seconds)
+    const starttimeStr = formData.get('starttime') as string;
+    const endtimeStr = formData.get('endtime') as string;
+    const starttime = Math.floor(new Date(starttimeStr).getTime() / 1000);
+    const endtime = Math.floor(new Date(endtimeStr).getTime() / 1000);
+    await createOpenday({ title, campus, starttime, endtime });
+  }
+
   return (
     <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
+      <form action={handleCreateOpenday} className="mb-6 flex flex-col md:flex-row gap-2 items-start md:items-end bg-white p-4 rounded shadow">
+        <input name="title" placeholder="Title" className="border p-2 rounded" required />
+        <input name="campus" placeholder="Campus" className="border p-2 rounded" required />
+        <input name="starttime" placeholder="Start Date & Time" className="border p-2 rounded" type="datetime-local" required />
+        <input name="endtime" placeholder="End Date & Time" className="border p-2 rounded" type="datetime-local" required />
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Create OpenDay</button>
+      </form>
       <OpendayList opendays={liveOpendays} title="Live OpenDays" bgColor="bg-green-50" />
       <OpendayList opendays={underConstructionOpendays} title="Under Construction" bgColor="bg-yellow-50" />
       <OpendayList opendays={archivedOpendays} title="Archived" bgColor="bg-gray-100" />
