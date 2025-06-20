@@ -3,6 +3,8 @@ import Link from 'next/link';
 import clsx from 'clsx';
 import EditButton, { DeleteButton } from './EditButton';
 import { cabin } from '@/app/ui/fonts';
+import { toast } from 'react-toastify';
+import { useState } from 'react';
 
 type Openday = {
   id: string;
@@ -57,9 +59,39 @@ export default function OpendayList({ opendays, title, bgColor }: { opendays: Op
           </div>
           <div className="md:col-span-2 flex md:justify-center items-center mt-2 md:mt-0">
             <EditButton href={`/admin/opendays/${openday.id}/edit`} />
-            <DeleteButton id={openday.id} onDelete={async () => {
-              await fetch(`/api/opendays/${openday.id}`, { method: 'DELETE' });
-              window.location.reload();
+            <DeleteButton onDelete={async () => {
+              const ConfirmDelete = () => {
+                const [loading, setLoading] = useState(false);
+
+                const handleConfirm = async () => {
+                  setLoading(true);
+                  try {
+                    const response = await fetch(`/api/opendays/${openday.id}`, { method: 'DELETE' });
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    toast.success('OpenDay deleted successfully.');
+                    window.location.reload();
+                  } catch {
+                    toast.error('Failed to delete OpenDay.');
+                  }
+                  setLoading(false);
+                };
+
+                return (
+                  <div>
+                    <p>Are you sure you want to delete this OpenDay?</p>
+                    <button
+                      className="mr-2 text-red-500"
+                      onClick={handleConfirm}
+                      disabled={loading}
+                    >
+                      {loading ? 'Deleting...' : 'Confirm'}
+                    </button>
+                    <button onClick={() => toast.dismiss()} disabled={loading}>Cancel</button>
+                  </div>
+                );
+              };
+
+              toast.info(<ConfirmDelete />, { autoClose: false, closeOnClick: false });
             }} />
           </div>
         </div>
