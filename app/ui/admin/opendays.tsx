@@ -1,5 +1,4 @@
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
-import { fetchOpendays } from '../../lib/data';
 import { createOpenday } from '../../lib/actions';
 import OpendayList from './OpendayList';
 
@@ -25,7 +24,7 @@ export default async function Opendays() {
         <input name="endtime" placeholder="End Date & Time" className="border p-2 rounded" type="datetime-local" required />
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Create OpenDay</button>
       </form>
-      <OpendayList bgColor="bg-white" />
+      <OpendayList />
       <div className="flex items-center pb-2 pt-6">
         <ArrowPathIcon className="h-5 w-5 text-gray-500" />
         <h3 className="ml-2 text-sm text-gray-500 ">Updated just now</h3>
