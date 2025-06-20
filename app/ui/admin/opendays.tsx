@@ -4,11 +4,6 @@ import { createOpenday } from '../../lib/actions';
 import OpendayList from './OpendayList';
 
 export default async function Opendays() {
-  const opendays = await fetchOpendays();
-  const liveOpendays = opendays.filter((openday) => openday.status === 'live');
-  const underConstructionOpendays = opendays.filter((openday) => openday.status === 'under construction');
-  const archivedOpendays = opendays.filter((openday) => openday.status === 'archived');
-
   async function handleCreateOpenday(formData: FormData) {
     'use server';
     const title = formData.get('title') as string;
@@ -30,9 +25,7 @@ export default async function Opendays() {
         <input name="endtime" placeholder="End Date & Time" className="border p-2 rounded" type="datetime-local" required />
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Create OpenDay</button>
       </form>
-      <OpendayList opendays={liveOpendays} title="Live OpenDays" bgColor="bg-green-50" />
-      <OpendayList opendays={underConstructionOpendays} title="Under Construction" bgColor="bg-yellow-50" />
-      <OpendayList opendays={archivedOpendays} title="Archived" bgColor="bg-gray-100" />
+      <OpendayList bgColor="bg-white" />
       <div className="flex items-center pb-2 pt-6">
         <ArrowPathIcon className="h-5 w-5 text-gray-500" />
         <h3 className="ml-2 text-sm text-gray-500 ">Updated just now</h3>
