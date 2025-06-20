@@ -1,8 +1,10 @@
 "use client";
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 export default function EditButton({ href }: { href: string }) {
+  const router = useRouter();
   const [, startTransition] = useTransition();
   const [loading, setLoading] = useState(false);
 
@@ -10,7 +12,7 @@ export default function EditButton({ href }: { href: string }) {
     e.preventDefault();
     setLoading(true);
     startTransition(() => {
-      window.location.href = href;
+      router.push(href);
     });
   };
 
@@ -33,7 +35,7 @@ export default function EditButton({ href }: { href: string }) {
   );
 }
 
-export function DeleteButton({ id, onDelete }: { id: string; onDelete: () => Promise<void> }) {
+export function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   const [loading, setLoading] = useState(false);
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this OpenDay?')) {
