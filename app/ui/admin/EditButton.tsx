@@ -1,21 +1,19 @@
 "use client";
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { toast } from 'react-toastify';
 import Spinner from '@/app/ui/Spinner';
+import { useLoading } from '@/app/ui/LoadingContext';
+import { toast } from 'react-toastify';
 
 export default function EditButton({ href }: { href: string }) {
   const router = useRouter();
-  const [, startTransition] = useTransition();
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useLoading();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setLoading(true);
-    startTransition(() => {
-      router.push(href);
-    });
+    router.push(href);
   };
 
   return (
@@ -23,9 +21,8 @@ export default function EditButton({ href }: { href: string }) {
       onClick={handleClick}
       className="flex items-center justify-center"
       aria-label="Edit"
-      disabled={loading}
     >
-      {loading ? <Spinner className="text-blue-500" /> : <PencilSquareIcon className="h-5 w-5 text-gray-500" />}
+      <PencilSquareIcon className="h-5 w-5 text-gray-500" />
     </button>
   );
 }

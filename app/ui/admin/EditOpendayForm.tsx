@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { updateOpenday } from '@/app/lib/actions';
 import { useRouter } from 'next/navigation';
+import { useLoading } from '@/app/ui/LoadingContext';
 
 interface Openday {
   id: string;
@@ -16,7 +17,7 @@ interface Openday {
 
 export default function EditOpendayForm({ openday }: { openday: Openday }) {
   const router = useRouter();
-  const [loading, setLoading] = useState<'save' | 'cancel' | null>(null);
+  const { setLoading } = useLoading();
   const [title, setTitle] = useState(openday.title);
   const [campus, setCampus] = useState(openday.campus);
   const [starttime, setStarttime] = useState(openday.starttime);
@@ -25,13 +26,12 @@ export default function EditOpendayForm({ openday }: { openday: Openday }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading('save');
+    setLoading(true);
     await updateOpenday({ id: openday.id, title, campus, starttime, endtime, status });
     router.push('/admin');
-    setLoading(null);
   };
   const handleCancel = () => {
-    setLoading('cancel');
+    setLoading(true);
     router.push('/admin');
   };
 
@@ -62,22 +62,10 @@ export default function EditOpendayForm({ openday }: { openday: Openday }) {
         </select>
       </div>
       <div className="flex gap-2">
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded flex items-center min-w-[80px]" disabled={!!loading}>
-          {loading === 'save' ? (
-            <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-            </svg>
-          ) : null}
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded flex items-center min-w-[80px]">
           Save
         </button>
-        <button type="button" className="bg-gray-300 text-gray-800 px-4 py-2 rounded flex items-center min-w-[80px]" onClick={handleCancel} disabled={!!loading}>
-          {loading === 'cancel' ? (
-            <svg className="animate-spin h-5 w-5 mr-2 text-gray-800" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-            </svg>
-          ) : null}
+        <button type="button" className="bg-gray-300 text-gray-800 px-4 py-2 rounded flex items-center min-w-[80px]" onClick={handleCancel}>
           Cancel
         </button>
       </div>
