@@ -3,7 +3,6 @@ import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import OpendayList from './OpendayList';
 import Link from 'next/link';
 import { useLoading } from '@/app/ui/LoadingContext';
-import { useState } from 'react';
 
 export default function Opendays() {
   const { setLoading } = useLoading();
