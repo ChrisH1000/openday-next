@@ -51,7 +51,7 @@ async function seedEvents(client) {
         title VARCHAR(255) NOT NULL UNIQUE,
         description VARCHAR(255) NOT NULL,
         interests VARCHAR(255) NOT NULL,
-        openday_fk UUID REFERENCES openday(id)
+        openday_fk UUID REFERENCES openday(id) ON DELETE CASCADE
       );
     `;
 
@@ -88,7 +88,7 @@ async function seedSessions(client) {
         id UUID DEFAULT uuid_generate_v1mc() PRIMARY KEY,
         starttime INT NOT NULL,
         endtime INT NOT NULL,
-        event_fk UUID REFERENCES event(id)
+        event_fk UUID REFERENCES event(id) ON DELETE CASCADE
       );
     `;
 
