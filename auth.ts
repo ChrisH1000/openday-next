@@ -3,8 +3,8 @@ import Credentials from 'next-auth/providers/credentials';
 import { authConfig } from './auth.config';
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
-import type { User } from '@/app/lib/definitions';
-import bcrypt from 'bcrypt';
+import type { User } from '@/app/lib/definitions'; // This seems to be a merge conflict artifact, let's keep it clean
+import bcrypt from 'bcryptjs';
 
 export async function getUser(email: string): Promise<User | undefined> {
   try {

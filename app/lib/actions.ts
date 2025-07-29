@@ -7,7 +7,7 @@
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { sql } from '@vercel/postgres';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // const FormSchema = z.object({
 //   id: z.string(),
@@ -89,7 +89,7 @@ export async function updateOpenday({ id, title, campus, starttime, endtime, sta
       UPDATE openday
       SET title = ${title}, campus = ${campus}, starttime = ${starttime}, endtime = ${endtime}, status = ${status}
       WHERE id = ${id}
-      RETURNING *;
+      RETURNING id;
     `;
     return result.rows[0];
   } catch (error) {
@@ -105,7 +105,7 @@ export async function createOpenday({ title, campus, starttime, endtime }: { tit
     const result = await sql`
       INSERT INTO openday (id, title, campus, starttime, endtime, status)
       VALUES (${id}, ${title}, ${campus}, ${starttime}, ${endtime}, ${status})
-      RETURNING *;
+      RETURNING id;
     `;
     return result.rows[0];
   } catch (error) {
