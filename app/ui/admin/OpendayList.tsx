@@ -80,7 +80,7 @@ export default function OpendayList() {
                     {formatTimestamp(openday.starttime)} {formatTimestamp(openday.starttime, false)} till {formatTimestamp(openday.endtime, false)}
                   </p>
                 </div>
-                <div className="md:col-span-2 flex md:justify-center items-center mt-2 md:mt-0">
+                <div className="md:col-span-2 flex md:justify-end items-center mt-2 md:mt-0">
                   <EditButton href={`/admin/opendays/${openday.id}/edit`} />
                   <DeleteButton onDelete={async () => {
                     const ConfirmDelete = () => {
