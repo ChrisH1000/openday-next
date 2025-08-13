@@ -20,31 +20,63 @@ export default function EditOpendayForm({ openday }: { openday: Openday }) {
   const { setLoading } = useLoading();
   const [title, setTitle] = useState(openday.title);
   const [campus, setCampus] = useState(openday.campus);
-  const [starttime, setStarttime] = useState(() => {
+  const [starttime, setStarttime] = useState<string>(() => {
     // Convert unix timestamp to yyyy-MM-ddTHH:mm for datetime-local input
     if (!openday.starttime) return '';
-    const date = new Date(openday.starttime * 1000);
-    const tzOffset = date.getTimezoneOffset() * 60000;
-    const localISO = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
-    return localISO;
+    try {
+      const date = new Date(openday.starttime * 1000);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localISO = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+      return localISO;
+    } catch (e) {
+      console.error('Error converting starttime:', e);
+      return '';
+    }
   });
-  const [endtime, setEndtime] = useState(() => {
+  const [endtime, setEndtime] = useState<string>(() => {
     if (!openday.endtime) return '';
-    const date = new Date(openday.endtime * 1000);
-    const tzOffset = date.getTimezoneOffset() * 60000;
-    const localISO = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
-    return localISO;
+    try {
+      const date = new Date(openday.endtime * 1000);
+      const tzOffset = date.getTimezoneOffset() * 60000;
+      const localISO = new Date(date.getTime() - tzOffset).toISOString().slice(0, 16);
+      return localISO;
+    } catch (e) {
+      console.error('Error converting endtime:', e);
+      return '';
+    }
   });
   const [status, setStatus] = useState(openday.status);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    
+    // Validate inputs
+    if (!title || !campus || !starttime || !endtime || !status) {
+      setError('Please fill in all fields.');
+      return;
+    }
+    
     setLoading(true);
-    const start = Math.floor(new Date(starttime).getTime() / 1000);
-    const end = Math.floor(new Date(endtime).getTime() / 1000);
-    await updateOpenday({ id: openday.id, title, campus, starttime: start, endtime: end, status });
-    router.push('/admin');
+    
+    try {
+      const start = Math.floor(new Date(starttime).getTime() / 1000);
+      const end = Math.floor(new Date(endtime).getTime() / 1000);
+      
+      if (isNaN(start) || isNaN(end)) {
+        throw new Error('Invalid date values');
+      }
+      
+      await updateOpenday({ id: openday.id, title, campus, starttime: start, endtime: end, status });
+      router.push('/admin');
+    } catch (err) {
+      console.error('Error updating openday:', err);
+      setError('Failed to update OpenDay. Please try again.');
+      setLoading(false);
+    }
   };
+  
   const handleCancel = () => {
     setLoading(true);
     router.push('/admin');
@@ -52,24 +84,34 @@ export default function EditOpendayForm({ openday }: { openday: Openday }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg">
+          {error}
+        </div>
+      )}
+      
       <div>
-        <label className="block mb-1 text-gray-700 dark:text-gray-300">Title</label>
+        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
         <input 
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" 
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" 
           value={title} 
           onChange={e => setTitle(e.target.value)} 
+          placeholder="Enter OpenDay title"
         />
       </div>
+      
       <div>
-        <label className="block mb-1 text-gray-700 dark:text-gray-300">Campus</label>
+        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Campus</label>
         <input 
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" 
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" 
           value={campus} 
           onChange={e => setCampus(e.target.value)} 
+          placeholder="Enter campus name"
         />
       </div>
+      
       <div>
-        <label className="block mb-1 text-gray-700 dark:text-gray-300">Start Time</label>
+        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
         <input
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           type="datetime-local"
@@ -77,8 +119,9 @@ export default function EditOpendayForm({ openday }: { openday: Openday }) {
           onChange={e => setStarttime(e.target.value)}
         />
       </div>
+      
       <div>
-        <label className="block mb-1 text-gray-700 dark:text-gray-300">End Time</label>
+        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">End Time</label>
         <input
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           type="datetime-local"
@@ -86,8 +129,9 @@ export default function EditOpendayForm({ openday }: { openday: Openday }) {
           onChange={e => setEndtime(e.target.value)}
         />
       </div>
+      
       <div>
-        <label className="block mb-1 text-gray-700 dark:text-gray-300">Status</label>
+        <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
         <select 
           className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" 
           value={status} 
@@ -98,6 +142,7 @@ export default function EditOpendayForm({ openday }: { openday: Openday }) {
           <option value="archived">Archived</option>
         </select>
       </div>
+      
       <div className="flex gap-2 pt-4">
         <button 
           type="submit" 
