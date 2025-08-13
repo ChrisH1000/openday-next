@@ -19,10 +19,10 @@ export default function EditButton({ href }: { href: string }) {
   return (
     <button
       onClick={handleClick}
-      className="flex items-center justify-center"
+      className="flex items-center justify-center p-2 rounded-lg bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
       aria-label="Edit"
     >
-      <PencilSquareIcon className="h-5 w-5 text-gray-500" />
+      <PencilSquareIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
     </button>
   );
 }
@@ -43,11 +43,11 @@ export function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   return (
     <button
       onClick={handleDelete}
-      className="flex items-center justify-center ml-2"
+      className="flex items-center justify-center p-2 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors ml-2"
       aria-label="Delete"
       disabled={loading}
     >
-      {loading ? <Spinner className="text-red-500" /> : <TrashIcon className="h-5 w-5 text-red-500" />}
+      {loading ? <Spinner className="text-red-500 h-5 w-5" /> : <TrashIcon className="h-5 w-5 text-red-500" />}
     </button>
   );
 }

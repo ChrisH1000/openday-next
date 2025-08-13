@@ -24,22 +24,31 @@ export default function Opendays() {
   };
 
   return (
-    <div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
-      <div className="flex justify-end mb-4">
+    <div className="flex grow flex-col justify-between rounded-xl bg-white dark:bg-gray-800 p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">OpenDays Management</h2>
         <Link href="/admin/opendays/create" prefetch={false} onClick={handleCreateClick}>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition-colors min-w-[160px]">
-            Create new Openday
+          <button className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-4 py-2 rounded-lg shadow hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 min-w-[160px] font-medium">
+            + Create New OpenDay
           </button>
         </Link>
       </div>
       <OpendayList />
-      <div className="flex items-center pb-2 pt-6 group">
-        <ArrowPathIcon className="h-5 w-5 text-gray-500 transition-transform duration-300 group-hover:animate-spin" />
-        <h3 className="ml-2 text-sm text-gray-500 ">
-          {minutesAgo === 0
-            ? "Updated just now"
-            : `Updated ${minutesAgo} minute${minutesAgo > 1 ? "s" : ""} ago`}
-        </h3>
+      <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center">
+          <ArrowPathIcon className="h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 group-hover:animate-spin" />
+          <h3 className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+            {minutesAgo === 0
+              ? "Updated just now"
+              : `Updated ${minutesAgo} minute${minutesAgo > 1 ? "s" : ""} ago`}
+          </h3>
+        </div>
+        <button 
+          onClick={() => setLastUpdate(new Date())}
+          className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+        >
+          Refresh
+        </button>
       </div>
     </div>
   );
