@@ -51,46 +51,65 @@ export default function EditOpendayForm({ openday }: { openday: Openday }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded shadow">
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
       <div>
-        <label className="block mb-1">Title</label>
-        <input className="border p-2 w-full" value={title} onChange={e => setTitle(e.target.value)} />
+        <label className="block mb-1 text-gray-700 dark:text-gray-300">Title</label>
+        <input 
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" 
+          value={title} 
+          onChange={e => setTitle(e.target.value)} 
+        />
       </div>
       <div>
-        <label className="block mb-1">Campus</label>
-        <input className="border p-2 w-full" value={campus} onChange={e => setCampus(e.target.value)} />
+        <label className="block mb-1 text-gray-700 dark:text-gray-300">Campus</label>
+        <input 
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" 
+          value={campus} 
+          onChange={e => setCampus(e.target.value)} 
+        />
       </div>
       <div>
-        <label className="block mb-1">Start Time</label>
+        <label className="block mb-1 text-gray-700 dark:text-gray-300">Start Time</label>
         <input
-          className="border p-2 w-full"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           type="datetime-local"
           value={starttime}
           onChange={e => setStarttime(e.target.value)}
         />
       </div>
       <div>
-        <label className="block mb-1">End Time</label>
+        <label className="block mb-1 text-gray-700 dark:text-gray-300">End Time</label>
         <input
-          className="border p-2 w-full"
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           type="datetime-local"
           value={endtime}
           onChange={e => setEndtime(e.target.value)}
         />
       </div>
       <div>
-        <label className="block mb-1">Status</label>
-        <select className="border p-2 w-full" value={status} onChange={e => setStatus(e.target.value)}>
+        <label className="block mb-1 text-gray-700 dark:text-gray-300">Status</label>
+        <select 
+          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" 
+          value={status} 
+          onChange={e => setStatus(e.target.value)}
+        >
           <option value="live">Live</option>
           <option value="under construction">Under Construction</option>
           <option value="archived">Archived</option>
         </select>
       </div>
-      <div className="flex gap-2">
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded flex items-center min-w-[80px]">
+      <div className="flex gap-2 pt-4">
+        <button 
+          type="submit" 
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center min-w-[80px] transition-colors duration-200"
+        >
           Save
         </button>
-        <button type="button" className="bg-gray-300 text-gray-800 px-4 py-2 rounded flex items-center min-w-[80px]" onClick={handleCancel}>
+        <button 
+          type="button" 
+          className="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 px-4 py-2 rounded-lg flex items-center min-w-[80px] transition-colors duration-200" 
+          onClick={handleCancel}
+        >
           Cancel
         </button>
       </div>
