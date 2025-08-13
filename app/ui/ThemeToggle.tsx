@@ -9,14 +9,14 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 flex items-center justify-center"
+      className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 ease-in-out flex items-center justify-center"
       aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
       title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
       {theme === 'light' ? (
-        <MoonIcon className="h-5 w-5" />
+        <MoonIcon className="h-5 w-5 transition-all duration-300 ease-in-out" />
       ) : (
-        <SunIcon className="h-5 w-5" />
+        <SunIcon className="h-5 w-5 transition-all duration-300 ease-in-out" />
       )}
     </button>
   );

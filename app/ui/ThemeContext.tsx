@@ -13,6 +13,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark');
+  const [isMounted, setIsMounted] = useState(false);
 
   // Load theme from localStorage or system preference on initial render
   useEffect(() => {
@@ -26,17 +27,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       setTheme('light');
     }
+    
+    setIsMounted(true);
   }, []);
 
   // Apply theme to document and save to localStorage
   useEffect(() => {
+    if (!isMounted) return;
+    
+    // Remove prevent-transition class after initial render
+    if (document.body.classList.contains('prevent-transition')) {
+      // Small delay to ensure initial render is complete
+      setTimeout(() => {
+        document.body.classList.remove('prevent-transition');
+      }, 10);
+    }
+    
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
     localStorage.setItem('theme', theme);
-  }, [theme]);
+  }, [theme, isMounted]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
