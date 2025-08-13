@@ -28,7 +28,7 @@ export default function Opendays() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800 dark:text-white">OpenDays Management</h2>
         <Link href="/admin/opendays/create" prefetch={false} onClick={handleCreateClick}>
-          <button className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-4 py-2 rounded-lg shadow hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 min-w-[160px] font-medium">
+          <button className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 min-w-[160px] font-medium">
             + Create New OpenDay
           </button>
         </Link>
@@ -45,7 +45,7 @@ export default function Opendays() {
         </div>
         <button 
           onClick={() => setLastUpdate(new Date())}
-          className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+          className="text-sm text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
         >
           Refresh
         </button>

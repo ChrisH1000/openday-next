@@ -43,7 +43,7 @@ export function DeleteButton({ onDelete }: { onDelete: () => Promise<void> }) {
   return (
     <button
       onClick={handleDelete}
-      className="flex items-center justify-center p-2 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors ml-2"
+      className="flex items-center justify-center p-2 rounded-lg bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors ml-2"
       aria-label="Delete"
       disabled={loading}
     >

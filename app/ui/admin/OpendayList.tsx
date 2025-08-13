@@ -106,7 +106,7 @@ export default function OpendayList() {
                     <p className="truncate text-sm md:text-base font-medium text-gray-900 dark:text-white">
                       <Link 
                         href={`/admin/opendays/${openday.id}`} 
-                        className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
                       >
                         {openday.title}
                       </Link>
@@ -147,7 +147,7 @@ export default function OpendayList() {
                                 Cancel
                               </button>
                               <button 
-                                className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors disabled:opacity-50"
+                                className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors disabled:opacity-50"
                                 onClick={handleConfirm} 
                                 disabled={loading}
                               >

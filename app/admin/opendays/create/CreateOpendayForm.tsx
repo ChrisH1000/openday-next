@@ -122,7 +122,7 @@ export default function CreateOpendayForm() {
           <div className="flex gap-4 pt-4">
             <button 
               type="submit" 
-              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-6 py-3 rounded-lg shadow hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 font-medium"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg shadow hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 font-medium"
             >
               Create OpenDay
             </button>
