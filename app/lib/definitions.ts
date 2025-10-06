@@ -17,6 +17,7 @@ export type Openday = {
   starttime: number;
   endtime: number;
   status: string;
+  event_count?: number;
 };
 
 export type Event = {

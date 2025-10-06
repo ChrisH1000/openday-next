@@ -7,15 +7,7 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import useSWR from 'swr';
 import Spinner from '@/app/ui/Spinner';
-
-type Openday = {
-  id: string;
-  title: string;
-  campus: string;
-  starttime: number;
-  endtime: number;
-  status: string;
-};
+import { Openday } from '@/app/lib/definitions';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -103,14 +95,19 @@ export default function OpendayList() {
                   )}
                 >
                   <div className="md:col-span-5 min-w-0">
-                    <p className="truncate text-sm md:text-base font-medium text-gray-900 dark:text-white">
-                      <Link
-                        href={`/admin/opendays/${openday.id}/events`}
-                        className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-                      >
-                        {openday.title}
-                      </Link>
-                    </p>
+                    <div className="flex items-center">
+                      <p className="truncate flex-1 text-sm md:text-base font-medium text-gray-900 dark:text-white">
+                        <Link
+                          href={`/admin/opendays/${openday.id}/events`}
+                          className="hover:text-blue-500 dark:hover:text-blue-400 transition-colors inline-block"
+                        >
+                          {openday.title}
+                        </Link>
+                        <span className="ml-3 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                          {openday.event_count || 0} event{(openday.event_count || 0) !== 1 ? 's' : ''}
+                        </span>
+                      </p>
+                    </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{openday.campus}</p>
                   </div>
                   <div className="md:col-span-5 mt-2 md:mt-0">
