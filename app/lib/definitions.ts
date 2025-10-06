@@ -25,4 +25,12 @@ export type Event = {
   description: string;
   interests: string;
   openday_fk: string;
+  sessions?: Session[];
+};
+
+export type Session = {
+  id: string;
+  starttime: number;
+  endtime: number;
+  event_fk: string;
 };
