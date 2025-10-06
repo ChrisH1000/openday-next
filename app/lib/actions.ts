@@ -113,3 +113,33 @@ export async function createOpenday({ title, campus, starttime, endtime }: { tit
     throw new Error('Failed to create openday.');
   }
 }
+
+export async function createEvent({ title, description, interests, openday_fk }: { title: string, description: string, interests: string, openday_fk: string }) {
+  try {
+    const id = crypto.randomUUID();
+    const result = await sql`
+      INSERT INTO event (id, title, description, interests, openday_fk)
+      VALUES (${id}, ${title}, ${description}, ${interests}, ${openday_fk})
+      RETURNING id;
+    `;
+    return result.rows[0];
+  } catch (error) {
+    console.error('Failed to create event:', error, { title, description, interests, openday_fk });
+    throw new Error('Failed to create event.');
+  }
+}
+
+export async function updateEvent({ id, title, description, interests }: { id: string, title: string, description: string, interests: string }) {
+  try {
+    const result = await sql`
+      UPDATE event
+      SET title = ${title}, description = ${description}, interests = ${interests}
+      WHERE id = ${id}
+      RETURNING id;
+    `;
+    return result.rows[0];
+  } catch (error) {
+    console.error('Failed to update event:', error, { id, title, description, interests });
+    throw new Error('Failed to update event.');
+  }
+}

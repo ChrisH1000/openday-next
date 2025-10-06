@@ -1,4 +1,6 @@
 import { sql } from '@vercel/postgres';
+import { NextRequest, NextResponse } from 'next/server';
+import { createEvent } from '@/app/lib/actions';
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -9,5 +11,16 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     });
   } catch (e) {
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Unknown error' }), { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const data = await req.json();
+  try {
+    const created = await createEvent({ ...data, openday_fk: params.id });
+    return NextResponse.json({ success: true, event: created });
+  } catch (e) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
   }
 }
