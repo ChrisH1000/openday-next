@@ -18,3 +18,11 @@ export type Openday = {
   endtime: number;
   status: string;
 };
+
+export type Event = {
+  id: string;
+  title: string;
+  description: string;
+  interests: string;
+  openday_fk: string;
+};

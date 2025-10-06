@@ -2,6 +2,7 @@ import { sql } from '@vercel/postgres';
 
 import {
   Openday,
+  Event,
 } from './definitions';
 
 export async function fetchOpendays() {
@@ -22,4 +23,15 @@ export async function fetchOpendays() {
 export async function fetchOpendayById(id: string) {
   const opendays = await fetchOpendays();
   return opendays.find((o) => o.id === id);
+}
+
+export async function fetchEventsByOpendayId(opendayId: string) {
+  try {
+    console.log('Fetching Events for Openday:', opendayId);
+    const data = await sql<Event>`SELECT * FROM event WHERE openday_fk = ${opendayId}`;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch Event data.');
+  }
 }
