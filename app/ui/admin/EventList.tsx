@@ -175,7 +175,7 @@ export default function EventList({ opendayId }: { opendayId: string }) {
                       type="time"
                       value={newSessionStart}
                       onChange={(e) => setNewSessionStart(e.target.value)}
-                      className="text-sm border rounded px-2 py-1"
+                      className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       placeholder="Start time"
                     />
                     <span>-</span>
@@ -183,7 +183,7 @@ export default function EventList({ opendayId }: { opendayId: string }) {
                       type="time"
                       value={newSessionEnd}
                       onChange={(e) => setNewSessionEnd(e.target.value)}
-                      className="text-sm border rounded px-2 py-1"
+                      className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       placeholder="End time"
                     />
                     <button
@@ -217,7 +217,7 @@ export default function EventList({ opendayId }: { opendayId: string }) {
                             const starttime = parseTimeToTimestamp(e.target.value);
                             session.starttime = starttime;
                           }}
-                          className="text-sm border rounded px-2 py-1"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         />
                         <span>-</span>
                         <input
@@ -227,7 +227,7 @@ export default function EventList({ opendayId }: { opendayId: string }) {
                             const endtime = parseTimeToTimestamp(e.target.value);
                             session.endtime = endtime;
                           }}
-                          className="text-sm border rounded px-2 py-1"
+                          className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         />
                         <button
                           onClick={() => handleEditSession(event.id, session.id, session.starttime, session.endtime)}
@@ -319,7 +319,7 @@ export default function EventList({ opendayId }: { opendayId: string }) {
                       type="time"
                       value={newSessionStart}
                       onChange={(e) => setNewSessionStart(e.target.value)}
-                      className="text-sm border rounded px-2 py-1"
+                      className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       placeholder="Start time"
                     />
                     <span>-</span>
@@ -327,7 +327,7 @@ export default function EventList({ opendayId }: { opendayId: string }) {
                       type="time"
                       value={newSessionEnd}
                       onChange={(e) => setNewSessionEnd(e.target.value)}
-                      className="text-sm border rounded px-2 py-1"
+                      className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
                       placeholder="End time"
                     />
                     <button
