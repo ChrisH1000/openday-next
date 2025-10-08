@@ -1,10 +1,10 @@
 "use client";
 import useSWR from 'swr';
-import Spinner from '@/app/ui/Spinner';
 import EditButton, { DeleteButton } from './EditButton';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { Event, Session } from '@/app/lib/definitions';
+import { EventSkeleton } from '@/app/ui/skeletons';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -83,11 +83,7 @@ export default function EventList({ opendayId }: { opendayId: string }) {
     }
   };
 
-  if (isLoading) return (
-    <div className="flex justify-center p-12">
-      <Spinner className="h-10 w-10 text-blue-500" />
-    </div>
-  );
+  if (isLoading) return <EventSkeleton />;
   if (error) return (
     <div className="p-6 text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg">
       Failed to load Events. Please try refreshing the page.
