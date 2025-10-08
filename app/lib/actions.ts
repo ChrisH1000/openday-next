@@ -143,3 +143,33 @@ export async function updateEvent({ id, title, description, interests }: { id: s
     throw new Error('Failed to update event.');
   }
 }
+
+export async function createSession({ starttime, endtime, event_fk }: { starttime: number, endtime: number, event_fk: string }) {
+  try {
+    const id = crypto.randomUUID();
+    const result = await sql`
+      INSERT INTO session (id, starttime, endtime, event_fk)
+      VALUES (${id}, ${starttime}, ${endtime}, ${event_fk})
+      RETURNING id;
+    `;
+    return result.rows[0];
+  } catch (error) {
+    console.error('Failed to create session:', error, { starttime, endtime, event_fk });
+    throw new Error('Failed to create session.');
+  }
+}
+
+export async function updateSession({ id, starttime, endtime }: { id: string, starttime: number, endtime: number }) {
+  try {
+    const result = await sql`
+      UPDATE session
+      SET starttime = ${starttime}, endtime = ${endtime}
+      WHERE id = ${id}
+      RETURNING id;
+    `;
+    return result.rows[0];
+  } catch (error) {
+    console.error('Failed to update session:', error, { id, starttime, endtime });
+    throw new Error('Failed to update session.');
+  }
+}
