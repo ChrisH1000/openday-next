@@ -3,7 +3,7 @@ import useSWR from 'swr';
 import EditButton, { DeleteButton } from './EditButton';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
-import { Event, Session } from '@/app/lib/definitions';
+import { Event, Session, Openday } from '@/app/lib/definitions';
 import { EventSkeleton } from '@/app/ui/skeletons';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
@@ -26,7 +26,15 @@ function parseTimeToTimestamp(time: string): number {
   return Math.floor(date.getTime() / 1000);
 }
 
-export default function EventList({ opendayId }: { opendayId: string }) {
+function compareTimes(time1: string, time2: string): number {
+  const [h1, m1] = time1.split(':').map(Number);
+  const [h2, m2] = time2.split(':').map(Number);
+  const total1 = h1 * 60 + m1;
+  const total2 = h2 * 60 + m2;
+  return total1 - total2;
+}
+
+export default function EventList({ opendayId, openday }: { opendayId: string; openday?: Openday }) {
   const { data: events, error, isLoading, mutate: mutateEvents } = useEvents(opendayId);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [newSessionStart, setNewSessionStart] = useState('');
@@ -35,9 +43,17 @@ export default function EventList({ opendayId }: { opendayId: string }) {
 
   const handleAddSession = async (eventId: string) => {
     if (!newSessionStart || !newSessionEnd) return;
+
+    // Validate that session end time doesn't exceed openday end time
+    if (openday && compareTimes(newSessionEnd, formatTimestamp(openday.endtime)) > 0) {
+      toast.error(`Session end time cannot be later than the OpenDay end time (${formatTimestamp(openday.endtime)})`);
+      return;
+    }
+
+    const starttime = parseTimeToTimestamp(newSessionStart);
+    const endtime = parseTimeToTimestamp(newSessionEnd);
+
     try {
-      const starttime = parseTimeToTimestamp(newSessionStart);
-      const endtime = parseTimeToTimestamp(newSessionEnd);
       const response = await fetch(`/api/opendays/${opendayId}/events/${eventId}/sessions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,6 +71,13 @@ export default function EventList({ opendayId }: { opendayId: string }) {
   };
 
   const handleEditSession = async (eventId: string, sessionId: string, starttime: number, endtime: number) => {
+    // Validate that session end time doesn't exceed openday end time
+    const endTimeString = formatTimestamp(endtime);
+    if (openday && compareTimes(endTimeString, formatTimestamp(openday.endtime)) > 0) {
+      toast.error(`Session end time cannot be later than the OpenDay end time (${formatTimestamp(openday.endtime)})`);
+      return;
+    }
+
     try {
       const response = await fetch(`/api/opendays/${opendayId}/events/${eventId}/sessions/${sessionId}`, {
         method: 'PUT',

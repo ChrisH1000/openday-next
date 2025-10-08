@@ -36,7 +36,7 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
           </Link>
         </div>
       </div>
-      <EventList opendayId={resolvedParams.id} />
+      <EventList opendayId={resolvedParams.id} openday={openday} />
     </div>
   );
 }
