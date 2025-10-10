@@ -1,41 +1,50 @@
 import { sql } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
 import { createEvent } from '@/app/lib/actions';
+import { buildErrorResponse } from '@/app/lib/errors';
+import { identifierSchema } from '@/app/lib/schemas';
 
-export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function GET(_req: Request, { params }: { params: { id: string } }) {
   try {
-    // First get events
-    const eventsResult = await sql`SELECT * FROM event WHERE openday_fk = ${id}`;
+    const opendayId = identifierSchema.parse(params.id);
+    const eventsResult = await sql`
+      SELECT
+        e.id,
+        e.title,
+        e.description,
+        e.interests,
+        e.openday_fk,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'id', s.id,
+              'starttime', s.starttime,
+              'endtime', s.endtime,
+              'event_fk', s.event_fk
+            )
+          ) FILTER (WHERE s.id IS NOT NULL),
+          '[]'::json
+        ) AS sessions
+      FROM event e
+      LEFT JOIN session s ON s.event_fk = e.id
+      WHERE e.openday_fk = ${opendayId}
+      GROUP BY e.id
+      ORDER BY e.title ASC
+    `;
 
-    // Then get sessions for each event
-    const eventsWithSessions = await Promise.all(
-      eventsResult.rows.map(async (event) => {
-        const sessionsResult = await sql`SELECT * FROM session WHERE event_fk = ${event.id} ORDER BY starttime`;
-        return {
-          ...event,
-          sessions: sessionsResult.rows
-        };
-      })
-    );
-
-    return new Response(JSON.stringify(eventsWithSessions), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Unknown error' }), { status: 500 });
+    return NextResponse.json(eventsResult.rows, { status: 200 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const data = await req.json();
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const created = await createEvent({ ...data, openday_fk: id });
-    return NextResponse.json({ success: true, event: created });
-  } catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
+    const opendayId = identifierSchema.parse(params.id);
+    const payload = await req.json();
+    const created = await createEvent({ ...payload, openday_fk: opendayId });
+    return NextResponse.json({ event: created }, { status: 201 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }

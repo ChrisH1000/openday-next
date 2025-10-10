@@ -1,26 +1,29 @@
-// API endpoint for updating an openday
 import { NextRequest, NextResponse } from 'next/server';
-import { updateOpenday } from '@/app/lib/actions';
 import { sql } from '@vercel/postgres';
+import { updateOpenday } from '@/app/lib/actions';
+import { buildErrorResponse, NotFoundError } from '@/app/lib/errors';
+import { identifierSchema } from '@/app/lib/schemas';
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const data = await req.json();
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const updated = await updateOpenday({ ...data, id: id });
-    return NextResponse.json({ success: true, openday: updated });
-  } catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
+    const id = identifierSchema.parse(params.id);
+    const payload = await req.json();
+    const updated = await updateOpenday({ ...payload, id });
+    return NextResponse.json({ openday: updated }, { status: 200 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
   try {
-    await sql`DELETE FROM openday WHERE id = ${id}`;
+    const id = identifierSchema.parse(params.id);
+    const result = await sql`DELETE FROM openday WHERE id = ${id} RETURNING id`;
+    if (result.rows.length === 0) {
+      throw new NotFoundError('OpenDay not found.');
+    }
     return new Response(null, { status: 204 });
-  } catch (e) {
-    return new Response(JSON.stringify({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }), { status: 400 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }

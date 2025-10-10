@@ -1,28 +1,29 @@
 import { sql } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/app/lib/actions';
+import { buildErrorResponse, NotFoundError } from '@/app/lib/errors';
+import { identifierSchema } from '@/app/lib/schemas';
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string; eventId: string; sessionId: string }> }) {
-  const { sessionId } = await params;
-  const data = await req.json();
+export async function PUT(req: NextRequest, { params }: { params: { id: string; eventId: string; sessionId: string } }) {
   try {
-    const updated = await updateSession({ ...data, id: sessionId });
-    return NextResponse.json({ success: true, session: updated });
-  } catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
+    const sessionId = identifierSchema.parse(params.sessionId);
+    const payload = await req.json();
+    const updated = await updateSession({ ...payload, id: sessionId });
+    return NextResponse.json({ session: updated }, { status: 200 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string; eventId: string; sessionId: string }> }) {
-  const { sessionId } = await params;
+export async function DELETE(_req: Request, { params }: { params: { id: string; eventId: string; sessionId: string } }) {
   try {
-    const result = await sql`DELETE FROM session WHERE id = ${sessionId} RETURNING *`;
+    const sessionId = identifierSchema.parse(params.sessionId);
+    const result = await sql`DELETE FROM session WHERE id = ${sessionId} RETURNING id`;
     if (result.rows.length === 0) {
-      return new Response(JSON.stringify({ success: false, error: 'No record deleted. ID not found.' }), { status: 404 });
+      throw new NotFoundError('Session not found.');
     }
     return new Response(null, { status: 204 });
-  } catch (e) {
-    return new Response(JSON.stringify({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }), { status: 400 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }

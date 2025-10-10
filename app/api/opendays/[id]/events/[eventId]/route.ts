@@ -1,28 +1,29 @@
 import { sql } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
 import { updateEvent } from '@/app/lib/actions';
+import { buildErrorResponse, NotFoundError } from '@/app/lib/errors';
+import { identifierSchema } from '@/app/lib/schemas';
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string; eventId: string }> }) {
-  const { eventId } = await params;
-  const data = await req.json();
+export async function PUT(req: NextRequest, { params }: { params: { id: string; eventId: string } }) {
   try {
-    const updated = await updateEvent({ ...data, id: eventId });
-    return NextResponse.json({ success: true, event: updated });
-  } catch (e) {
-    const errorMessage = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
+    const eventId = identifierSchema.parse(params.eventId);
+    const payload = await req.json();
+    const updated = await updateEvent({ ...payload, id: eventId });
+    return NextResponse.json({ event: updated }, { status: 200 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string; eventId: string }> }) {
-  const { eventId } = await params;
+export async function DELETE(_req: Request, { params }: { params: { id: string; eventId: string } }) {
   try {
-    const result = await sql`DELETE FROM event WHERE id = ${eventId} RETURNING *`;
+    const eventId = identifierSchema.parse(params.eventId);
+    const result = await sql`DELETE FROM event WHERE id = ${eventId} RETURNING id`;
     if (result.rows.length === 0) {
-      return new Response(JSON.stringify({ success: false, error: 'No record deleted. ID not found.' }), { status: 404 });
+      throw new NotFoundError('Event not found.');
     }
     return new Response(null, { status: 204 });
-  } catch (e) {
-    return new Response(JSON.stringify({ success: false, error: e instanceof Error ? e.message : 'Unknown error' }), { status: 400 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }

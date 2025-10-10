@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { Event, Session, Openday } from '@/app/lib/definitions';
 import { EventSkeleton } from '@/app/ui/skeletons';
+import { parseErrorResponse } from '@/app/lib/client-errors';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -40,13 +41,51 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
   const [newSessionStart, setNewSessionStart] = useState('');
   const [newSessionEnd, setNewSessionEnd] = useState('');
   const [showAddSession, setShowAddSession] = useState<string | null>(null);
+  const [sessionAddErrors, setSessionAddErrors] = useState<Record<string, Record<string, string>>>({});
+  const [sessionEditErrors, setSessionEditErrors] = useState<Record<string, Record<string, string>>>({});
+
+  const clearAddErrors = (eventId: string) => {
+    setSessionAddErrors(prev => {
+      const rest = { ...prev };
+      delete rest[eventId];
+      return rest;
+    });
+  };
+
+  const clearEditErrors = (sessionId: string) => {
+    setSessionEditErrors(prev => {
+      const rest = { ...prev };
+      delete rest[sessionId];
+      return rest;
+    });
+  };
+
+  const toggleAddSession = (eventId: string) => {
+    const isOpen = showAddSession === eventId;
+    setShowAddSession(isOpen ? null : eventId);
+    setNewSessionStart('');
+    setNewSessionEnd('');
+    clearAddErrors(eventId);
+  };
 
   const handleAddSession = async (eventId: string) => {
-    if (!newSessionStart || !newSessionEnd) return;
+    if (!newSessionStart || !newSessionEnd) {
+      setSessionAddErrors(prev => ({
+        ...prev,
+        [eventId]: { form: 'Start and end times are required.' },
+      }));
+      return;
+    }
+
+    clearAddErrors(eventId);
 
     // Validate that session end time doesn't exceed openday end time
     if (openday && compareTimes(newSessionEnd, formatTimestamp(openday.endtime)) > 0) {
       toast.error(`Session end time cannot be later than the OpenDay end time (${formatTimestamp(openday.endtime)})`);
+      setSessionAddErrors(prev => ({
+        ...prev,
+        [eventId]: { endtime: 'Session end time exceeds OpenDay end time.' },
+      }));
       return;
     }
 
@@ -59,22 +98,39 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ starttime, endtime }),
       });
-      if (!response.ok) throw new Error('Failed to add session');
+      if (!response.ok) {
+        const parsed = await parseErrorResponse(response);
+        toast.error(parsed.message);
+        setSessionAddErrors(prev => ({
+          ...prev,
+          [eventId]: {
+            ...(parsed.details ?? {}),
+            form: parsed.message,
+          },
+        }));
+        return;
+      }
       toast.success('Session added successfully.');
       mutateEvents();
       setNewSessionStart('');
       setNewSessionEnd('');
       setShowAddSession(null);
+      clearAddErrors(eventId);
     } catch {
       toast.error('Failed to add session.');
     }
   };
 
   const handleEditSession = async (eventId: string, sessionId: string, starttime: number, endtime: number) => {
+    clearEditErrors(sessionId);
     // Validate that session end time doesn't exceed openday end time
     const endTimeString = formatTimestamp(endtime);
     if (openday && compareTimes(endTimeString, formatTimestamp(openday.endtime)) > 0) {
       toast.error(`Session end time cannot be later than the OpenDay end time (${formatTimestamp(openday.endtime)})`);
+      setSessionEditErrors(prev => ({
+        ...prev,
+        [sessionId]: { endtime: 'Session end time exceeds OpenDay end time.' },
+      }));
       return;
     }
 
@@ -84,10 +140,22 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ starttime, endtime }),
       });
-      if (!response.ok) throw new Error('Failed to update session');
+      if (!response.ok) {
+        const parsed = await parseErrorResponse(response);
+        toast.error(parsed.message);
+        setSessionEditErrors(prev => ({
+          ...prev,
+          [sessionId]: {
+            ...(parsed.details ?? {}),
+            form: parsed.message,
+          },
+        }));
+        return;
+      }
       toast.success('Session updated successfully.');
       mutateEvents();
       setEditingSessionId(null);
+      clearEditErrors(sessionId);
     } catch {
       toast.error('Failed to update session.');
     }
@@ -98,7 +166,11 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
       const response = await fetch(`/api/opendays/${opendayId}/events/${eventId}/sessions/${sessionId}`, {
         method: 'DELETE',
       });
-      if (!response.ok) throw new Error('Failed to delete session');
+      if (!response.ok) {
+        const parsed = await parseErrorResponse(response);
+        toast.error(parsed.message);
+        return;
+      }
       toast.success('Session deleted successfully.');
       mutateEvents();
     } catch {
@@ -181,7 +253,7 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Sessions:</h3>
                 <button
-                  onClick={() => setShowAddSession(showAddSession === event.id ? null : event.id)}
+                  onClick={() => toggleAddSession(event.id)}
                   className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors"
                 >
                   + Add Session
@@ -189,7 +261,7 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
               </div>
               {showAddSession === event.id && (
                 <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                     <input
                       type="time"
                       value={newSessionStart}
@@ -213,14 +285,17 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
                     </button>
                     <button
                       onClick={() => {
-                        setShowAddSession(null);
-                        setNewSessionStart('');
-                        setNewSessionEnd('');
+                        toggleAddSession(event.id);
                       }}
                       className="text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600"
                     >
                       Cancel
                     </button>
+                  </div>
+                  <div className="mt-1 space-y-1 text-xs text-red-600 dark:text-red-400">
+                    {sessionAddErrors[event.id]?.form && <p>{sessionAddErrors[event.id]?.form}</p>}
+                    {sessionAddErrors[event.id]?.starttime && <p>{sessionAddErrors[event.id]?.starttime}</p>}
+                    {sessionAddErrors[event.id]?.endtime && <p>{sessionAddErrors[event.id]?.endtime}</p>}
                   </div>
                 </div>
               )}
@@ -228,38 +303,52 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
                 {event.sessions.map((session: Session) => (
                   <div key={session.id} className="flex items-center justify-between text-sm bg-gray-50 dark:bg-gray-600/30 p-2 rounded">
                     {editingSessionId === session.id ? (
-                      <div className="flex items-center space-x-2 flex-1">
-                        <input
-                          type="time"
-                          defaultValue={formatTimestamp(session.starttime)}
-                          onChange={(e) => {
-                            const starttime = parseTimeToTimestamp(e.target.value);
-                            session.starttime = starttime;
-                          }}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                        />
-                        <span>-</span>
-                        <input
-                          type="time"
-                          defaultValue={formatTimestamp(session.endtime)}
-                          onChange={(e) => {
-                            const endtime = parseTimeToTimestamp(e.target.value);
-                            session.endtime = endtime;
-                          }}
-                          className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                        />
-                        <button
-                          onClick={() => handleEditSession(event.id, session.id, session.starttime, session.endtime)}
-                          className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setEditingSessionId(null)}
-                          className="text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600"
-                        >
-                          Cancel
-                        </button>
+                      <div className="flex flex-1 flex-col gap-2">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="time"
+                            defaultValue={formatTimestamp(session.starttime)}
+                            onChange={(e) => {
+                              const starttime = parseTimeToTimestamp(e.target.value);
+                              session.starttime = starttime;
+                              clearEditErrors(session.id);
+                            }}
+                            className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                          />
+                          <span>-</span>
+                          <input
+                            type="time"
+                            defaultValue={formatTimestamp(session.endtime)}
+                            onChange={(e) => {
+                              const endtime = parseTimeToTimestamp(e.target.value);
+                              session.endtime = endtime;
+                              clearEditErrors(session.id);
+                            }}
+                            className="text-sm border border-gray-300 rounded px-2 py-1 bg-white dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                          />
+                          <button
+                            onClick={() => handleEditSession(event.id, session.id, session.starttime, session.endtime)}
+                            className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingSessionId(null);
+                              clearEditErrors(session.id);
+                            }}
+                            className="text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                        {sessionEditErrors[session.id] && (
+                          <div className="text-xs text-red-600 dark:text-red-400 space-y-1">
+                            {sessionEditErrors[session.id]?.form && <p>{sessionEditErrors[session.id]?.form}</p>}
+                            {sessionEditErrors[session.id]?.starttime && <p>{sessionEditErrors[session.id]?.starttime}</p>}
+                            {sessionEditErrors[session.id]?.endtime && <p>{sessionEditErrors[session.id]?.endtime}</p>}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <>
@@ -268,7 +357,10 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
                         </span>
                         <div className="flex space-x-1">
                           <button
-                            onClick={() => setEditingSessionId(session.id)}
+                            onClick={() => {
+                              setEditingSessionId(session.id);
+                              clearEditErrors(session.id);
+                            }}
                             className="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
                           >
                             Edit
@@ -325,7 +417,7 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Sessions:</h3>
                 <button
-                  onClick={() => setShowAddSession(showAddSession === event.id ? null : event.id)}
+                  onClick={() => toggleAddSession(event.id)}
                   className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors"
                 >
                   + Add Session
@@ -333,7 +425,7 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
               </div>
               {showAddSession === event.id && (
                 <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                     <input
                       type="time"
                       value={newSessionStart}
@@ -356,15 +448,16 @@ export default function EventList({ opendayId, openday }: { opendayId: string; o
                       Add
                     </button>
                     <button
-                      onClick={() => {
-                        setShowAddSession(null);
-                        setNewSessionStart('');
-                        setNewSessionEnd('');
-                      }}
+                      onClick={() => toggleAddSession(event.id)}
                       className="text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600"
                     >
                       Cancel
                     </button>
+                  </div>
+                  <div className="mt-1 space-y-1 text-xs text-red-600 dark:text-red-400">
+                    {sessionAddErrors[event.id]?.form && <p>{sessionAddErrors[event.id]?.form}</p>}
+                    {sessionAddErrors[event.id]?.starttime && <p>{sessionAddErrors[event.id]?.starttime}</p>}
+                    {sessionAddErrors[event.id]?.endtime && <p>{sessionAddErrors[event.id]?.endtime}</p>}
                   </div>
                 </div>
               )}

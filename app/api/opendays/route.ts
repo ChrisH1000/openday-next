@@ -1,4 +1,7 @@
 import { sql } from '@vercel/postgres';
+import { NextRequest, NextResponse } from 'next/server';
+import { buildErrorResponse } from '@/app/lib/errors';
+import { createOpenday } from '@/app/lib/actions';
 
 export async function GET() {
   try {
@@ -12,11 +15,18 @@ export async function GET() {
       GROUP BY o.id
       ORDER BY o.starttime DESC
     `;
-    return new Response(JSON.stringify(result.rows), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Unknown error' }), { status: 500 });
+    return NextResponse.json(result.rows, { status: 200 });
+  } catch (error) {
+    return buildErrorResponse(error);
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const payload = await req.json();
+    const created = await createOpenday(payload);
+    return NextResponse.json({ openday: created }, { status: 201 });
+  } catch (error) {
+    return buildErrorResponse(error);
   }
 }

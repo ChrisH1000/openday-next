@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLoading } from '@/app/ui/LoadingContext';
 import { Event } from '@/app/lib/definitions';
+import { parseErrorResponse } from '@/app/lib/client-errors';
 
 export default function EditEventForm({ event, opendayId }: { event: Event; opendayId: string }) {
   const router = useRouter();
@@ -12,10 +13,12 @@ export default function EditEventForm({ event, opendayId }: { event: Event; open
   const [description, setDescription] = useState(event.description);
   const [interests, setInterests] = useState(event.interests);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setFieldErrors({});
 
     if (!title || !description || !interests) {
       setError('Please fill in all fields.');
@@ -31,12 +34,19 @@ export default function EditEventForm({ event, opendayId }: { event: Event; open
         body: JSON.stringify({ title, description, interests }),
       });
 
-      if (!response.ok) throw new Error('Failed to update event');
+      if (!response.ok) {
+        const parsed = await parseErrorResponse(response);
+        setError(parsed.message);
+        setFieldErrors(parsed.details ?? {});
+        setLoading(false);
+        return;
+      }
 
+      setLoading(false);
       router.push(`/admin/opendays/${opendayId}/events`);
     } catch (err) {
       console.error('Error updating event:', err);
-      setError('Failed to update Event. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to update Event. Please try again.');
       setLoading(false);
     }
   };
@@ -62,6 +72,9 @@ export default function EditEventForm({ event, opendayId }: { event: Event; open
           onChange={e => setTitle(e.target.value)}
           placeholder="Enter event title"
         />
+        {fieldErrors.title && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.title}</p>
+        )}
       </div>
 
       <div>
@@ -73,6 +86,9 @@ export default function EditEventForm({ event, opendayId }: { event: Event; open
           placeholder="Enter event description"
           rows={4}
         />
+        {fieldErrors.description && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.description}</p>
+        )}
       </div>
 
       <div>
@@ -83,6 +99,9 @@ export default function EditEventForm({ event, opendayId }: { event: Event; open
           onChange={e => setInterests(e.target.value)}
           placeholder="Enter interests (comma separated)"
         />
+        {fieldErrors.interests && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.interests}</p>
+        )}
       </div>
 
       <div className="flex gap-2 pt-4">
