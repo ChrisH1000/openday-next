@@ -4,9 +4,10 @@ import { createEvent } from '@/app/lib/actions';
 import { buildErrorResponse } from '@/app/lib/errors';
 import { identifierSchema } from '@/app/lib/schemas';
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const opendayId = identifierSchema.parse(params.id);
+    const { id } = await params;
+    const opendayId = identifierSchema.parse(id);
     const eventsResult = await sql`
       SELECT
         e.id,
@@ -38,9 +39,10 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const opendayId = identifierSchema.parse(params.id);
+    const { id } = await params;
+    const opendayId = identifierSchema.parse(id);
     const payload = await req.json();
     const created = await createEvent({ ...payload, openday_fk: opendayId });
     return NextResponse.json({ event: created }, { status: 201 });
