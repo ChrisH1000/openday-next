@@ -2,6 +2,14 @@ import type { NextAuthConfig } from 'next-auth';
 import { sql } from '@vercel/postgres';
 import type { User } from '@/app/lib/definitions';
 
+interface ExtendedUser {
+  id?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  admin?: boolean;
+}
+
 export const authConfig = {
   pages: {
     signIn: '/login',
@@ -23,7 +31,7 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       console.log('authorized');
       const isLoggedIn = !!auth?.user;
-      const isAdmin = auth?.user?.admin;
+      const isAdmin = (auth?.user as ExtendedUser)?.admin;
       console.log(auth);
 
       const isOnLogin = nextUrl.pathname === '/login';

@@ -31,25 +31,27 @@ async function ensureAdmin(): Promise<{ response: NextResponse | null } & Partia
   return { response: null, session, user };
 }
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { response, user } = await ensureAdmin();
   if (response) {
     return response;
   }
 
   try {
-    const adminUser = await getAdminUser(params.id);
+    const adminUser = await getAdminUser(id);
     if (!adminUser) {
       return NextResponse.json({ error: 'Admin user not found.' }, { status: 404 });
     }
     return NextResponse.json(adminUser, { status: 200 });
   } catch (error) {
-    console.error('Failed to fetch admin user:', error, { id: params.id, requester: user?.id });
+    console.error('Failed to fetch admin user:', error, { id: id, requester: user?.id });
     return NextResponse.json({ error: 'Failed to fetch admin user.' }, { status: 500 });
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { response, user } = await ensureAdmin();
   if (response || !user) {
     return response ?? unauthorizedResponse;
@@ -66,12 +68,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     );
   }
 
-  if (parsed.data.admin === false && user.id === params.id) {
+  if (parsed.data.admin === false && user.id === id) {
     return NextResponse.json({ error: 'You cannot remove your own admin access.' }, { status: 400 });
   }
 
   try {
-    const adminUser = await updateAdminUser(params.id, parsed.data);
+    const adminUser = await updateAdminUser(id, parsed.data);
     return NextResponse.json(adminUser, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to update admin user.';
@@ -80,18 +82,19 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { response, user } = await ensureAdmin();
   if (response || !user) {
     return response ?? unauthorizedResponse;
   }
 
-  if (user.id === params.id) {
+  if (user.id === id) {
     return NextResponse.json({ error: 'You cannot delete your own account.' }, { status: 400 });
   }
 
   try {
-    await deleteAdminUser(params.id);
+    await deleteAdminUser(id);
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to delete admin user.';

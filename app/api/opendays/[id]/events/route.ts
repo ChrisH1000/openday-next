@@ -2,10 +2,11 @@ import { sql } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
 import { createEvent } from '@/app/lib/actions';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     // First get events
-    const eventsResult = await sql`SELECT * FROM event WHERE openday_fk = ${params.id}`;
+    const eventsResult = await sql`SELECT * FROM event WHERE openday_fk = ${id}`;
 
     // Then get sessions for each event
     const eventsWithSessions = await Promise.all(
@@ -27,10 +28,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const data = await req.json();
   try {
-    const created = await createEvent({ ...data, openday_fk: params.id });
+    const created = await createEvent({ ...data, openday_fk: id });
     return NextResponse.json({ success: true, event: created });
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : String(e);

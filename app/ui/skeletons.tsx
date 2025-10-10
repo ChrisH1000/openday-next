@@ -80,3 +80,26 @@ export function EventSkeleton() {
     </div>
   );
 }
+
+export function AdminUsersSkeleton() {
+  return (
+    <div className={`${shimmer} mt-6 space-y-4`}>
+      {[1, 2, 3, 4].map((user) => (
+        <div
+          key={user}
+          className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600"
+        >
+          <div className="flex-1 min-w-0">
+            <div className="h-4 w-32 bg-gray-200 dark:bg-gray-600 rounded mb-2" />
+            <div className="h-3 w-48 bg-gray-100 dark:bg-gray-600 rounded" />
+          </div>
+          <div className="flex items-center gap-2 mt-3 md:mt-0">
+            <div className="h-6 w-12 bg-gray-200 dark:bg-gray-600 rounded" />
+            <div className="h-8 w-8 bg-gray-200 dark:bg-gray-600 rounded" />
+            <div className="h-8 w-8 bg-gray-200 dark:bg-gray-600 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}

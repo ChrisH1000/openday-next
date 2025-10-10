@@ -6,7 +6,7 @@ import useSWR from 'swr';
 import { TrashIcon } from '@heroicons/react/24/outline';
 
 import EditButton from '@/app/ui/admin/EditButton';
-import Spinner from '@/app/ui/Spinner';
+import { AdminUsersSkeleton } from '@/app/ui/skeletons';
 
 type AdminUser = {
   id: string;
@@ -38,11 +38,7 @@ export default function AdminUserList({ currentUserId, onRefresh }: AdminUserLis
   }, [data, onRefresh]);
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center p-12">
-        <Spinner className="h-10 w-10 text-blue-500" />
-      </div>
-    );
+    return <AdminUsersSkeleton />;
   }
 
   if (error) {

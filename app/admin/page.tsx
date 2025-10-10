@@ -5,6 +5,8 @@ import AdminStats from '@/app/ui/admin/AdminStats';
 import { lusitana } from '@/app/ui/fonts';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminPage() {
   const session = await auth();
 
@@ -35,10 +37,10 @@ export default async function AdminPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
         <div className="col-span-1 md:col-span-4 lg:col-span-8">
-          <AdminUsers currentUserId={currentUserId} />
+          <Opendays />
         </div>
         <div className="col-span-1 md:col-span-4 lg:col-span-8">
-          <Opendays />
+          <AdminUsers currentUserId={currentUserId} />
         </div>
       </div>
     </div>
