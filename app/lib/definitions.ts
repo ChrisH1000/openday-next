@@ -10,6 +10,8 @@ export type User = {
   admin: boolean;
 };
 
+export type AdminUser = Omit<User, 'password'>;
+
 export type Openday = {
   id: string;
   title: string;

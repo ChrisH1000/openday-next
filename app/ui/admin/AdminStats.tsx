@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { lusitana } from '@/app/ui/fonts';
-import { 
-  CalendarIcon, 
-  BuildingOfficeIcon, 
-  ClockIcon, 
-  UsersIcon 
+import {
+  CalendarIcon,
+  BuildingOfficeIcon,
+  ClockIcon,
+  UsersIcon
 } from '@heroicons/react/24/outline';
 
 type Openday = {
@@ -29,15 +29,6 @@ const fetchOpendays = async () => {
   }
 };
 
-const formatTimestamp = (timestamp: number) => {
-  const date = new Date(timestamp * 1000);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  });
-};
-
 export default function AdminStats() {
   const [opendays, setOpendays] = useState<Openday[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,7 +39,7 @@ export default function AdminStats() {
       setOpendays(data);
       setLoading(false);
     };
-    
+
     loadOpendays();
   }, []);
 
@@ -66,12 +57,12 @@ export default function AdminStats() {
   }
 
   const liveCount = opendays.filter(day => day.status === 'live').length;
-  const upcomingCount = opendays.filter(day => 
-    day.status === 'under construction' && 
+  const upcomingCount = opendays.filter(day =>
+    day.status === 'under construction' &&
     day.starttime > Math.floor(Date.now() / 1000)
   ).length;
   const campusCount = new Set(opendays.map(day => day.campus)).size;
-  const totalDuration = opendays.reduce((total, day) => 
+  const totalDuration = opendays.reduce((total, day) =>
     total + (day.endtime - day.starttime), 0
   );
 
